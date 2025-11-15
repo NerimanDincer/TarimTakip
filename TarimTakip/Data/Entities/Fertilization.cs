@@ -1,0 +1,13 @@
+﻿namespace TarimTakip.API.Data.Entities
+{
+    public class Fertilization
+    {
+        public int Id { get; set; }
+        public int FarmFieldId { get; set; } // Foreign Key
+        public string? Description { get; set; }
+        public DateTime Date { get; set; }
+
+        // Navigation Property
+        public virtual FarmField FarmField { get; set; }
+    }
+}
