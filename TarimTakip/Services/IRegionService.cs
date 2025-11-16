@@ -5,6 +5,6 @@ namespace TarimTakip.API.Services
     public interface IRegionService
     {
         Task<List<Region>> GetAllRegionsAsync();
-        Task CreateRegionAsync(string regionName);
+        Task<Region> CreateRegionAsync(string regionName);
     }
 }

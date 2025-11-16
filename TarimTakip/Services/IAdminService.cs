@@ -7,5 +7,8 @@ namespace TarimTakip.API.Services
     {
         Task<List<UserResponseDto>> GetAllUsersAsync();
         Task DeleteUserAsync(int userId);
+        Task<AdminStatsDto> GetAdminStatsAsync();
+        Task<bool> ToggleUserStatusAsync(int userId);
+        Task UpdateUserRoleAsync(int userId, string newRole);
     }
 }

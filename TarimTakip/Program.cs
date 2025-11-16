@@ -32,6 +32,8 @@ builder.Services.AddScoped<ICalendarNoteService, CalendarNoteService>();
 builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IPlantInfoService, PlantInfoService>();
+builder.Services.AddScoped<IPlantRegionService, PlantRegionService>();
 
 builder.Services.AddAuthentication(options =>
 {

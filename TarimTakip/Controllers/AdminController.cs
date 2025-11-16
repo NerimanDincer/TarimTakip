@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TarimTakip.API.Services;
+using TarimTakip.API.Models.DTOs.Admin;
 
 namespace TarimTakip.API.Controllers
 {
@@ -37,6 +38,50 @@ namespace TarimTakip.API.Controllers
             {
                 // "Admin silinemez" veya "Kullanıcı bulunamadı" hatalarını yakala
                 // Veya veritabanı kısıtlaması (FOREIGN KEY) hatasını yakala
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+        // GET: /api/Admin/stats
+        // Admin paneli için ana istatistikleri getirir
+        [HttpGet("stats")]
+        public async Task<IActionResult> GetStats()
+        {
+            var stats = await _adminService.GetAdminStatsAsync();
+            return Ok(stats);
+        }
+        // PUT: /api/Admin/users/toggle-status/2
+        // Bir kullanıcının (ID: 2) 'IsActive' durumunu tersine çevirir
+        [HttpPut("users/toggle-status/{id}")]
+        public async Task<IActionResult> ToggleUserStatus(int id)
+        {
+            try
+            {
+                var newStatus = await _adminService.ToggleUserStatusAsync(id);
+                var statusMessage = newStatus ? "aktif" : "pasif";
+
+                return Ok(new
+                {
+                    Message = $"Kullanıcı başarıyla {statusMessage} hale getirildi.",
+                    NewStatus = newStatus
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+        // PUT: /api/Admin/users/role/4
+        // Bir kullanıcının (ID: 4) rolünü günceller
+        [HttpPut("users/role/{id}")]
+        public async Task<IActionResult> UpdateUserRole(int id, [FromBody] AdminUserRoleUpdateDto request)
+        {
+            try
+            {
+                await _adminService.UpdateUserRoleAsync(id, request.NewRole);
+                return Ok(new { Message = $"Kullanıcı rolü başarıyla '{request.NewRole}' olarak güncellendi." });
+            }
+            catch (Exception ex)
+            {
                 return BadRequest(new { Message = ex.Message });
             }
         }

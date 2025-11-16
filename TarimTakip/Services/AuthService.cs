@@ -62,7 +62,7 @@ namespace TarimTakip.API.Services
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
 
             // 2. Kullanıcı yoksa veya parola yanlışsa
-            if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash) || user.IsActive == false)
             {
                 throw new Exception("Email veya parola hatalı.");
             }

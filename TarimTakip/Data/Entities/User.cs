@@ -9,6 +9,7 @@
         public string? Phone { get; set; }
         public string Role { get; set; } // "Farmer" veya "Engineer"
         public int RegionId { get; set; }
+        public bool IsActive { get; set; } = true;  //Buradaki = true; kısmı çok kritik. Bu, 'varsayılan değer' atamasıdır. Bu sayede, veritabanındaki mevcut tüm kullanıcıların (Admin, Zeynep Mühendis vb.) ve yeni kaydolanların otomatik olarak "Aktif" (true) başlamasını sağlar. Böylece mevcut sistemi bozmamış oluruz.
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // --- Navigation Properties (İlişkiler) ---

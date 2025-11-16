@@ -20,17 +20,28 @@ namespace TarimTakip.API.Services
             return await _context.Regions.ToListAsync();
         }
 
-        public async Task CreateRegionAsync(string regionName)
+        public async Task<Region> CreateRegionAsync(string regionName)
         {
-            // Yeni bir Region nesnesi oluştur
+            // 1. GÜVENLİK KONTROLÜ: İsim var mı? (Büyük/küçük harf duyarsız)
+            var existingRegion = await _context.Regions
+                .FirstOrDefaultAsync(r => r.Name.ToUpper() == regionName.ToUpper());
+
+            if (existingRegion != null)
+            {
+                // Eğer bölge zaten varsa, HATA FIRLAT
+                throw new Exception("Bu bölge adı zaten kayıtlı.");
+            }
+
+            // 2. Yeni bölgeyi oluştur
             var newRegion = new Region
             {
-                Name = regionName
+                Name = regionName // İsim büyük/küçük harf nasıl verildiyse öyle kaydet
             };
 
-            // Veritabanına ekle ve kaydet
             await _context.Regions.AddAsync(newRegion);
             await _context.SaveChangesAsync();
+
+            return newRegion; // Oluşturulan yeni bölgeyi döndür
         }
     }
 }

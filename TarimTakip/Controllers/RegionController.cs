@@ -24,7 +24,6 @@ namespace TarimTakip.API.Controllers
             return Ok(regions); // Bölgeleri JSON olarak döndür
         }
 
-        // POST: /api/region?name=Antalya
         // Yeni bölge ekleyecek
         [HttpPost]
         public async Task<IActionResult> CreateRegion([FromQuery] string name)
@@ -34,8 +33,19 @@ namespace TarimTakip.API.Controllers
                 return BadRequest("Bölge adı boş olamaz.");
             }
 
-            await _regionService.CreateRegionAsync(name);
-            return Ok(new { Message = $"{name} bölgesi başarıyla eklendi." });
+            try
+            {
+                // Artık bu metot bize oluşturulan bölgeyi döndürüyor
+                var newRegion = await _regionService.CreateRegionAsync(name);
+
+                // Başarılı olursa, oluşturulan bölgeyi JSON olarak döndür
+                return Ok(newRegion);
+            }
+            catch (Exception ex)
+            {
+                // Serviste fırlattığımız "Bu bölge adı zaten kayıtlı." hatasını yakala
+                return BadRequest(new { Message = ex.Message });
+            }
         }
     }
 }

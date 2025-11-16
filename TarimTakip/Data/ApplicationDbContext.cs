@@ -106,6 +106,14 @@ namespace TarimTakip.API.Data
                 .WithMany(u => u.CalendarNotes)
                 .HasForeignKey(cn => cn.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Bir PlantInfo (ana bitki) silinmeye çalışılırsa, ama ona bağlı
+            // PlantRegion (bölgesel) kayıtları varsa, silmeyi KISITLA (Restrict).
+            modelBuilder.Entity<PlantRegion>()
+                .HasOne(pr => pr.PlantInfo)
+                .WithMany(p => p.PlantRegions)
+                .HasForeignKey(pr => pr.PlantId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

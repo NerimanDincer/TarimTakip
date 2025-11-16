@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TarimTakip.API.Data;
 
@@ -11,9 +12,11 @@ using TarimTakip.API.Data;
 namespace TarimTakip.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251116115718_AddIsActiveToUser")]
+    partial class AddIsActiveToUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -354,6 +357,9 @@ namespace TarimTakip.Migrations
                     b.Property<int>("PlantId")
                         .HasColumnType("int");
 
+                    b.Property<int>("PlantInfoId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("PlantingTimeEnd")
                         .HasColumnType("datetime2");
 
@@ -368,7 +374,7 @@ namespace TarimTakip.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PlantId");
+                    b.HasIndex("PlantInfoId");
 
                     b.HasIndex("RegionId");
 
@@ -641,8 +647,8 @@ namespace TarimTakip.Migrations
                 {
                     b.HasOne("TarimTakip.API.Data.Entities.PlantInfo", "PlantInfo")
                         .WithMany("PlantRegions")
-                        .HasForeignKey("PlantId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasForeignKey("PlantInfoId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("TarimTakip.API.Data.Entities.Region", "Region")
