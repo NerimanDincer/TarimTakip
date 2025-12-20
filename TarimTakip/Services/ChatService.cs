@@ -84,5 +84,47 @@ namespace TarimTakip.API.Services
                 }).OrderBy(m => m.CreatedAt).ToList() ?? new List<MessageResponseDto>()
             };
         }
+        public async Task<MessageResponseDto> SendMessageAsync(int chatRoomId, int senderId, string text)
+        {
+            // 1. Odayı bul
+            var room = await _context.ChatRooms.FindAsync(chatRoomId);
+            if (room == null)
+                throw new Exception("Sohbet odası bulunamadı.");
+
+            // 2. GÜVENLİK KONTROLÜ: 
+            // Mesajı atan kişi bu odanın Çiftçisi mi? Veya Mühendisi mi?
+            // Eğer ikisi de değilse, bu odaya mesaj atamaz!
+            if (room.FarmerId != senderId && room.EngineerId != senderId)
+            {
+                throw new Exception("Bu sohbet odasına mesaj gönderme yetkiniz yok.");
+            }
+
+            // 3. Mesajı oluştur
+            var message = new Data.Entities.Message
+            {
+                ChatRoomId = chatRoomId,
+                SenderId = senderId,
+                Text = text,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            // 4. Kaydet
+            await _context.Messages.AddAsync(message);
+            await _context.SaveChangesAsync();
+
+            // 5. Gönderenin adını da bulalım (Geri dönerken lazım olacak)
+            var sender = await _context.Users.FindAsync(senderId);
+
+            // 6. DTO olarak geri döndür
+            return new MessageResponseDto
+            {
+                Id = message.Id,
+                ChatRoomId = message.ChatRoomId,
+                SenderId = message.SenderId,
+                SenderName = sender.FullName,
+                Text = message.Text,
+                CreatedAt = message.CreatedAt
+            };
+        }
     }
 }

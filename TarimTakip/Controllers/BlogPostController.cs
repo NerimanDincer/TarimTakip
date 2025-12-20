@@ -31,7 +31,7 @@ namespace TarimTakip.API.Controllers
         // POST: /api/blogpost
         // Bu metot GÜVENLİ ve ROL KORUMALI.
         [HttpPost]
-        [Authorize(Roles = "Engineer")] // <-- SİHİRLİ SATIR!
+        [Authorize(Roles = "Admin,Engineer")] 
         public async Task<IActionResult> CreateBlogPost([FromBody] BlogPostCreateDto request)
         {
             // Token'dan (kimlik kartından) mühendisin ID'sini al
