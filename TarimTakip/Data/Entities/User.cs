@@ -43,5 +43,7 @@
 
         // 1 User (Engineer) -> Many ChatRooms
         public virtual ICollection<ChatRoom> ChatRoomsAsEngineer { get; set; }
+        public string? ProfilePictureUrl { get; set; } // Profil fotosu
+        public string? Bio { get; set; } // "20 yıllık mısır üreticisiyim" gibi kısa bilgi
     }
 }

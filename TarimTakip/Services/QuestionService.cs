@@ -124,5 +124,48 @@ namespace TarimTakip.API.Services
                 EngineerName = engineer?.FullName ?? "Mühendis"
             };
         }
+
+        // ADMIN İÇİN: Soruyu mühendise atama
+        public async Task AssignQuestionAsync(int questionId, int engineerId)
+        {
+            var question = await _context.Questions.FindAsync(questionId);
+            if (question == null)
+                throw new Exception("Soru bulunamadı.");
+
+            var engineer = await _context.Users.FindAsync(engineerId);
+            if (engineer == null)
+                throw new Exception("Kullanıcı bulunamadı.");
+
+            // Atanan kişi gerçekten mühendis mi? (Güvenlik kontrolü)
+            if (engineer.Role != "Engineer")
+                throw new Exception("Bu kullanıcı bir Mühendis değil! Soru atanamaz.");
+
+            question.EngineerId = engineerId;
+            question.Status = "Assigned"; // Durumu 'Atandı' yapıyoruz
+
+            _context.Questions.Update(question);
+            await _context.SaveChangesAsync();
+        }
+
+        // MÜHENDİS İÇİN: Bana atanan soruları getir
+        public async Task<List<QuestionResponseDto>> GetQuestionsByEngineerAsync(int engineerId)
+        {
+            return await _context.Questions
+                .Where(q => q.EngineerId == engineerId) // Sadece bu mühendise ait olanlar
+                .Include(q => q.Farmer)
+                .Include(q => q.Answers)
+                .OrderByDescending(q => q.CreatedAt)
+                .Select(q => new QuestionResponseDto
+                {
+                    Id = q.Id,
+                    Title = q.Title,
+                    Status = q.Status,
+                    FarmerName = q.Farmer.FullName,
+                    ImageUrl = q.ImageUrl,
+                    CreatedAt = q.CreatedAt,
+                    AnswerCount = q.Answers.Count()
+                })
+                .ToListAsync();
+        }
     }
 }

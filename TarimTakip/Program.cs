@@ -34,6 +34,8 @@ builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IPlantInfoService, PlantInfoService>();
 builder.Services.AddScoped<IPlantRegionService, PlantRegionService>();
+builder.Services.AddHttpClient(); // Ýnternete çýkmak için gerekli
+builder.Services.AddScoped<IWeatherService, WeatherService>();
 
 builder.Services.AddAuthentication(options =>
 {

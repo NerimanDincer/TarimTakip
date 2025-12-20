@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TarimTakip.API.Data;
 
@@ -11,9 +12,11 @@ using TarimTakip.API.Data;
 namespace TarimTakip.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251220104317_AddCoordinatesToRegion")]
+    partial class AddCoordinatesToRegion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -390,9 +393,6 @@ namespace TarimTakip.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("EngineerId")
-                        .HasColumnType("int");
-
                     b.Property<int>("FarmerId")
                         .HasColumnType("int");
 
@@ -408,8 +408,6 @@ namespace TarimTakip.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("EngineerId");
 
                     b.HasIndex("FarmerId");
 
@@ -678,17 +676,11 @@ namespace TarimTakip.Migrations
 
             modelBuilder.Entity("TarimTakip.API.Data.Entities.Question", b =>
                 {
-                    b.HasOne("TarimTakip.API.Data.Entities.User", "Engineer")
-                        .WithMany()
-                        .HasForeignKey("EngineerId");
-
                     b.HasOne("TarimTakip.API.Data.Entities.User", "Farmer")
                         .WithMany("Questions")
                         .HasForeignKey("FarmerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Engineer");
 
                     b.Navigation("Farmer");
                 });

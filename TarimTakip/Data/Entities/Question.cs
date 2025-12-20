@@ -13,5 +13,7 @@
         public virtual User Farmer { get; set; }
         public virtual ICollection<Answer> Answers { get; set; }
         public string? ImageUrl { get; set; } // Resim dosyası değil, sadece yolu (adres) tutulur
+        public int? EngineerId { get; set; } // Hangi mühendise atandı? (Boş olabilir)
+        public User? Engineer { get; set; }  // İlişki (Navigation Property)
     }
 }

@@ -115,5 +115,27 @@ namespace TarimTakip.API.Services
             // Token'ı string olarak döndür
             return tokenHandler.WriteToken(token);
         }
+        // En alta ekleyebilirsin:
+
+        public async Task<User> GetUserByIdAsync(int userId)
+        {
+            var user = await _context.Users.Include(u => u.Region).FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null) throw new Exception("Kullanıcı bulunamadı.");
+            return user;
+        }
+
+        public async Task UpdateProfileAsync(int userId, UserUpdateDto request)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) throw new Exception("Kullanıcı bulunamadı.");
+
+            user.FullName = request.FullName;
+            user.Bio = request.Bio;
+            user.ProfilePictureUrl = request.ProfilePictureUrl;
+            user.RegionId = request.RegionId;
+
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+        }
     }
 }

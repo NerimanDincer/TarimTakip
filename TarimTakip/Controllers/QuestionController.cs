@@ -53,17 +53,53 @@ namespace TarimTakip.API.Controllers
             return Ok(new { Message = "Soru başarıyla oluşturuldu.", QuestionId = questionId });
         }
 
-        // SADECE MÜHENDİSLER
-        // POST: /api/Question/1/answer
-        [HttpPost("{questionId}/answer")]
-        [Authorize(Roles = "Engineer")]
-        public async Task<IActionResult> CreateAnswer(int questionId, [FromBody] AnswerCreateDto request)
+        // PUT: /api/Question/5/assign
+        // (ID: 5 olan soruyu bir mühendise ata)
+        [HttpPut("{id}/assign")]
+        [Authorize(Roles = "Admin")] // Sadece Admin yapabilir!
+        public async Task<IActionResult> AssignQuestion(int id, [FromBody] AssignQuestionDto request)
         {
             try
             {
-                var engineerId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-                var answer = await _questionService.CreateAnswerAsync(questionId, request, engineerId);
-                return Ok(answer);
+                await _questionService.AssignQuestionAsync(id, request.EngineerId);
+                return Ok(new { Message = "Soru başarıyla mühendise atandı." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
+        // --- MÜHENDİS İŞLEMLERİ ---
+
+        // GET: /api/Question/my-assignments
+        // (Mühendisin kendi sorularını listelemesi)
+        [HttpGet("my-assignments")]
+        [Authorize(Roles = "Engineer")] // Sadece Mühendisler girebilir
+        public async Task<IActionResult> GetMyAssignments()
+        {
+            // Token'dan mühendisin kendi ID'sini buluyoruz (Sihirli kod)
+            var userIdString = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var engineerId = int.Parse(userIdString);
+
+            var questions = await _questionService.GetQuestionsByEngineerAsync(engineerId);
+            return Ok(questions);
+        }
+        // POST: /api/Question/5/answer
+        // (ID: 5 olan soruya cevap yaz)
+        [HttpPost("{id}/answer")]
+        [Authorize(Roles = "Engineer")] // Sadece Mühendisler cevap yazabilir
+        public async Task<IActionResult> AnswerQuestion(int id, [FromBody] AnswerCreateDto request)
+        {
+            try
+            {
+                // Mühendisin ID'sini token'dan alıyoruz
+                var userIdString = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var engineerId = int.Parse(userIdString);
+
+                var result = await _questionService.CreateAnswerAsync(id, request, engineerId);
+
+                return Ok(result);
             }
             catch (Exception ex)
             {
