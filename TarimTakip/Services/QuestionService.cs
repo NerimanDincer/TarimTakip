@@ -27,6 +27,7 @@ namespace TarimTakip.API.Services
                     Title = q.Title,
                     Status = q.Status,
                     FarmerName = q.Farmer.FullName,
+                    ImageUrl = q.ImageUrl,
                     CreatedAt = q.CreatedAt,
                     AnswerCount = q.Answers.Count()
                 })
@@ -48,6 +49,7 @@ namespace TarimTakip.API.Services
                     Content = q.Content,
                     Status = q.Status,
                     FarmerName = q.Farmer.FullName,
+                    ImageUrl = q.ImageUrl,
                     CreatedAt = q.CreatedAt,
                     Answers = q.Answers.Select(a => new AnswerResponseDto
                     {
@@ -75,7 +77,8 @@ namespace TarimTakip.API.Services
                 Content = request.Content,
                 FarmerId = farmerId,
                 Status = "Pending", // İlk durum 'Beklemede'
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                ImageUrl = request.ImageUrl
             };
 
             await _context.Questions.AddAsync(question);

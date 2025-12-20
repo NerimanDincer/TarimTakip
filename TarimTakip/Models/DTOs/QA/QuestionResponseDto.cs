@@ -8,5 +8,6 @@
         public string FarmerName { get; set; }
         public DateTime CreatedAt { get; set; }
         public int AnswerCount { get; set; } // Kaç cevap gelmiş
+        public string? ImageUrl { get; set; }
     }
 }

@@ -12,5 +12,6 @@
         // Navigation Properties
         public virtual User Farmer { get; set; }
         public virtual ICollection<Answer> Answers { get; set; }
+        public string? ImageUrl { get; set; } // Resim dosyası değil, sadece yolu (adres) tutulur
     }
 }

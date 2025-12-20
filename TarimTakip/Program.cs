@@ -60,6 +60,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddScoped<IImageService, ImageService>();
 // Swagger'a JWT desteði ekliyoruz
 builder.Services.AddSwaggerGen(options =>
 {
@@ -101,6 +102,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles(); // Bu satýr olmadan resimler tarayýcýda açýlmaz!
 app.UseAuthentication(); 
 app.UseAuthorization();
 
