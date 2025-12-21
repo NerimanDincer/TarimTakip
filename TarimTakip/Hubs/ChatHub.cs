@@ -1,60 +1,40 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
-using TarimTakip.API.Data;
-using TarimTakip.API.Data.Entities;
+using TarimTakip.API.Services; // Service'i kullanmak için ekledik
 
 namespace TarimTakip.API.Hubs
 {
-    [Authorize] // Sadece giriş yapmış, token'ı olanlar bu Hub'a bağlanabilir
+    [Authorize] // Sadece token'ı olanlar girebilir
     public class ChatHub : Hub
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IChatService _chatService;
 
-        public ChatHub(ApplicationDbContext context)
+        // DbContext yerine Service enjekte ediyoruz.
+        // Böylece kayıt mantığı tek bir yerde (Service) tutuluyor.
+        public ChatHub(IChatService chatService)
         {
-            _context = context;
+            _chatService = chatService;
         }
 
-        // Mobil uygulama bu metodu çağırarak odaya katılır
+        // 1. Odaya Katılma (JoinRoom)
         public async Task JoinRoom(string chatRoomId)
         {
-            // 'Groups.AddToGroupAsync' SignalR'ın "oda" mekanizmasıdır.
-            // O odadaki (gruptaki) herkese mesaj yollamamızı sağlar.
             await Groups.AddToGroupAsync(Context.ConnectionId, chatRoomId);
         }
 
-        // Mobil uygulama bu metodu çağırarak mesaj gönderir
+        // 2. Mesaj Gönderme (SendMessage)
+        // Mobil uygulama soket üzerinden direkt mesaj atarsa burası çalışır
         public async Task SendMessage(int chatRoomId, string text)
         {
-            // 1. Mesajı kim gönderdi? (Token'dan al)
+            // Kullanıcıyı bul
             var userId = int.Parse(Context.User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            var user = await _context.Users.FindAsync(userId);
 
-            // 2. Mesajı veritabanına kaydet
-            var message = new Message
-            {
-                ChatRoomId = chatRoomId,
-                SenderId = userId,
-                Text = text,
-                CreatedAt = DateTime.UtcNow
-            };
+            // İşi Service'e yaptır (Veritabanına kayıt)
+            var messageDto = await _chatService.SendMessageAsync(chatRoomId, userId, text);
 
-            _context.Messages.Add(message);
-            await _context.SaveChangesAsync();
-
-            // 3. Mesajı odadaki DİĞER KİŞİLERE (ve kendine) geri yolla
-            // Mobil uygulama "ReceiveMessage" adlı olayı dinleyecek
-            await Clients.Group(chatRoomId.ToString()).SendAsync("ReceiveMessage", new
-            {
-                // DTO'yu burada manuel oluşturup yolluyoruz
-                Id = message.Id,
-                ChatRoomId = message.ChatRoomId,
-                SenderId = message.SenderId,
-                SenderName = user.FullName,
-                Text = message.Text,
-                CreatedAt = message.CreatedAt
-            });
+            // Sonucu odadaki herkese (Gönderen dahil) ilet
+            await Clients.Group(chatRoomId.ToString()).SendAsync("ReceiveMessage", messageDto);
         }
     }
 }

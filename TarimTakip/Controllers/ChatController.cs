@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TarimTakip.API.Models.DTOs.Chat;
 using TarimTakip.API.Services;
+using Microsoft.AspNetCore.SignalR;
+using TarimTakip.API.Hubs;
 
 namespace TarimTakip.API.Controllers
 {
@@ -12,10 +14,12 @@ namespace TarimTakip.API.Controllers
     public class ChatController : ControllerBase
     {
         private readonly IChatService _chatService;
+        private readonly IHubContext<ChatHub> _hubContext;
 
-        public ChatController(IChatService chatService)
+        public ChatController(IChatService chatService, IHubContext<ChatHub> hubContext)
         {
             _chatService = chatService;
+            _hubContext=hubContext;
         }
 
         // GET: /api/Chat/rooms
@@ -46,19 +50,21 @@ namespace TarimTakip.API.Controllers
             }
         }
 
-        // Controller'ın içine, diğer metotların altına ekle:
 
-        // POST: /api/Chat/{chatRoomId}/message
-        // Odaya mesaj gönder
         [HttpPost("{chatRoomId}/message")]
         public async Task<IActionResult> SendMessage(int chatRoomId, [FromBody] MessageCreateDto request)
         {
             try
             {
-                // Mesajı kim atıyor? Token'dan bulalım.
                 var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
 
+                // 1. Önce veritabanına kaydet (Eski kod)
                 var result = await _chatService.SendMessageAsync(chatRoomId, userId, request.Text);
+
+                // 2. ŞİMDİ CANLI YAYIN YAP! 📡
+                // "chatRoomId" grubundaki (odadaki) herkese "ReceiveMessage" etiketiyle veriyi yolla.
+                await _hubContext.Clients.Group(chatRoomId.ToString())
+                                 .SendAsync("ReceiveMessage", result);
 
                 return Ok(result);
             }

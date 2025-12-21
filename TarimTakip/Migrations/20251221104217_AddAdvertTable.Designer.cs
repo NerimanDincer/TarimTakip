@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TarimTakip.API.Data;
 
@@ -11,9 +12,11 @@ using TarimTakip.API.Data;
 namespace TarimTakip.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251221104217_AddAdvertTable")]
+    partial class AddAdvertTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -484,36 +487,6 @@ namespace TarimTakip.Migrations
                     b.ToTable("Regions");
                 });
 
-            modelBuilder.Entity("TarimTakip.API.Data.Entities.Report", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AdvertId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Reason")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ReporterId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AdvertId");
-
-                    b.HasIndex("ReporterId");
-
-                    b.ToTable("Reports");
-                });
-
             modelBuilder.Entity("TarimTakip.API.Data.Entities.Sale", b =>
                 {
                     b.Property<int>("Id")
@@ -777,25 +750,6 @@ namespace TarimTakip.Migrations
                     b.Navigation("Engineer");
 
                     b.Navigation("Farmer");
-                });
-
-            modelBuilder.Entity("TarimTakip.API.Data.Entities.Report", b =>
-                {
-                    b.HasOne("TarimTakip.API.Data.Entities.Advert", "Advert")
-                        .WithMany()
-                        .HasForeignKey("AdvertId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TarimTakip.API.Data.Entities.User", "Reporter")
-                        .WithMany()
-                        .HasForeignKey("ReporterId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Advert");
-
-                    b.Navigation("Reporter");
                 });
 
             modelBuilder.Entity("TarimTakip.API.Data.Entities.Sale", b =>

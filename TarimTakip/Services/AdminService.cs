@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TarimTakip.API.Data;
 using TarimTakip.API.Models.DTOs.Admin;
+using TarimTakip.API.Models.DTOs.Report;
 
 namespace TarimTakip.API.Services
 {
@@ -159,6 +160,59 @@ namespace TarimTakip.API.Services
             user.Role = newRole;
 
             _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<ReportResponseDto>> GetAllReportsAsync()
+        {
+            var reports = await _context.Reports
+                .Include(r => r.Advert)
+                    .ThenInclude(a => a.Seller)
+                .Include(r => r.Reporter) 
+                .OrderByDescending(r => r.CreatedAt) 
+                .ToListAsync();
+
+            return reports.Select(r => new ReportResponseDto
+            {
+                Id = r.Id,
+                Reason = r.Reason,
+                CreatedAt = r.CreatedAt,
+                AdvertId = r.AdvertId,
+
+                // Null kontrolleri (İlan veya Satıcı silinmiş olabilir)
+                AdvertTitle = r.Advert != null ? r.Advert.Title : "Silinmiş İlan",
+                SellerName = (r.Advert != null && r.Advert.Seller != null) ? r.Advert.Seller.FullName : "Bilinmiyor",
+
+                ReporterName = r.Reporter != null ? r.Reporter.FullName : "Bilinmiyor"
+            }).ToList();
+        }
+
+        // 2. İlanı Sil (Cezalandır) 🔨
+        public async Task DeleteAdvertAsync(int advertId)
+        {
+            var advert = await _context.Adverts.FindAsync(advertId);
+
+            // EĞER İLAN YOKSA HATA FIRLAT! 🚨
+            if (advert == null)
+            {
+                throw new Exception("Silinecek ilan bulunamadı (ID hatalı).");
+            }
+
+            _context.Adverts.Remove(advert);
+            await _context.SaveChangesAsync();
+        }
+
+        // 3. Şikayeti Sil (Temize Çıkar) 🗑️
+        public async Task DeleteReportAsync(int reportId)
+        {
+            var report = await _context.Reports.FindAsync(reportId);
+
+            if (report == null)
+            {
+                throw new Exception("Silinecek şikayet bulunamadı.");
+            }
+
+            _context.Reports.Remove(report);
             await _context.SaveChangesAsync();
         }
     }

@@ -36,6 +36,8 @@ builder.Services.AddScoped<IPlantInfoService, PlantInfoService>();
 builder.Services.AddScoped<IPlantRegionService, PlantRegionService>();
 builder.Services.AddHttpClient(); // Ýnternete çýkmak için gerekli
 builder.Services.AddScoped<IWeatherService, WeatherService>();
+builder.Services.AddSignalR();
+builder.Services.AddScoped<IAdvertService, AdvertService>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -109,5 +111,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHub<ChatHub>("/chatHub");
+app.MapHub<TarimTakip.API.Hubs.ChatHub>("/chathub"); 
 app.Run();

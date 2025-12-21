@@ -85,5 +85,44 @@ namespace TarimTakip.API.Controllers
                 return BadRequest(new { Message = ex.Message });
             }
         }
+
+        // Şikayetleri Gör
+        [HttpGet("reports")]
+        public async Task<IActionResult> GetReports()
+        {
+            var reports = await _adminService.GetAllReportsAsync();
+            return Ok(reports);
+        }
+
+        // İlanı Sil (Yargı Dağıt) 🔨
+        [HttpDelete("advert/{id}")]
+        public async Task<IActionResult> DeleteAdvert(int id)
+        {
+            try
+            {
+                await _adminService.DeleteAdvertAsync(id);
+                return Ok(new { Message = "İlan başarıyla silindi." });
+            }
+            catch (Exception ex)
+            {
+                // Hata mesajını 404 Not Found olarak döndür
+                return NotFound(new { Message = ex.Message });
+            }
+        }
+
+        // Şikayeti Sil (İlan masumsa şikayeti çöpe at)
+        [HttpDelete("report/{id}")]
+        public async Task<IActionResult> DismissReport(int id)
+        {
+            try
+            {
+                await _adminService.DeleteReportAsync(id);
+                return Ok(new { Message = "Şikayet kaydı başarıyla silindi." });
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+        }
     }
 }

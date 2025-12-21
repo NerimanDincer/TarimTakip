@@ -61,16 +61,23 @@ namespace TarimTakip.API.Services
             // 1. Kullanıcıyı email ile bul
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
 
-            // 2. Kullanıcı yoksa veya parola yanlışsa
-            if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash) || user.IsActive == false)
+            // 2. KİMLİK KONTROLÜ: Kullanıcı yoksa veya parola yanlışsa
+            // (Burada bilerek isActive kontrolünü yapmıyoruz)
+            if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             {
                 throw new Exception("Email veya parola hatalı.");
             }
 
-            // 3. Parola doğruysa, Token oluştur
+            // 3. DURUM KONTROLÜ: Şifre doğru, peki hesap aktif mi?
+            // Eğer buraya geldiyse, şifre kesinlikle doğrudur.
+            if (user.IsActive == false)
+            {
+                throw new Exception("Hesabınız yönetici tarafından askıya alınmıştır. Giriş yapamazsınız.");
+            }
+
+            // 4. Her şey yolunda, Token oluştur
             var token = GenerateJwtToken(user);
 
-            // 4. Token ve kullanıcı bilgisi döndür
             return new LoginResponseDto
             {
                 Id = user.Id,

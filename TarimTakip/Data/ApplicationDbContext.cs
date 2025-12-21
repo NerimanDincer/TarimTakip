@@ -27,6 +27,8 @@ namespace TarimTakip.API.Data
         public DbSet<Answer> Answers { get; set; }
         public DbSet<ChatRoom> ChatRooms { get; set; }
         public DbSet<Message> Messages { get; set; }
+        public DbSet<Advert> Adverts { get; set; }
+        public DbSet<Report> Reports { get; set; }
 
         // İlişkileri detaylandırmak için (opsiyonel ama güçlü)
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -114,6 +116,15 @@ namespace TarimTakip.API.Data
                 .WithMany(p => p.PlantRegions)
                 .HasForeignKey(pr => pr.PlantId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+
+            // Report tablosu ile User (Reporter) arasındaki ilişkiyi yapılandırıyoruz.
+            modelBuilder.Entity<Report>()
+                .HasOne(r => r.Reporter) // Bir şikayetin bir şikayetçisi olur
+                .WithMany()              // Bir kişinin çok şikayeti olabilir
+                .HasForeignKey(r => r.ReporterId)
+                .OnDelete(DeleteBehavior.Restrict); // Kullanıcı silinirse şikayetleri silmeye çalışma, hata ver veya engelle.
+
         }
     }
 }
