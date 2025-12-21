@@ -1,4 +1,5 @@
-﻿using TarimTakip.API.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using TarimTakip.API.Data;
 using TarimTakip.API.Data.Entities;
 using TarimTakip.API.Models.DTOs.Farm;
 
@@ -41,6 +42,46 @@ namespace TarimTakip.API.Services
             };
 
             await _context.Expenses.AddAsync(expense);
+            await _context.SaveChangesAsync();
+        }
+
+        // BU KISMI MEVCUT KODUNUN ALTINA YAPIŞTIR
+
+        // LİSTELEME (SİLİNENLERİ GETİRME)
+        public async Task<List<Expense>> GetExpensesByFieldAsync(int farmFieldId, int userId)
+        {
+            // Önce tarlanın sahibini kontrol etmemiz lazım ama 
+            // pratik olsun diye sorgunun içine gömüyoruz:
+
+            var expenses = await _context.Expenses
+                .Include(x => x.FarmField) // Tarlaya eriş
+                .Where(x => x.FarmFieldId == farmFieldId
+                            && x.FarmField.UserId == userId // Sadece kendi tarlası
+                            && !x.IsDeleted) // <--- İŞTE KRİTİK NOKTA: SİLİNMİŞSE GETİRME!
+                .OrderByDescending(x => x.Date) // En yeniler üstte
+                .ToListAsync();
+
+            return expenses;
+        }
+
+        // SİLME (SOFT DELETE - GİZLEME)
+        public async Task DeleteExpenseAsync(int expenseId, int userId)
+        {
+            var expense = await _context.Expenses
+                .Include(x => x.FarmField)
+                .FirstOrDefaultAsync(x => x.Id == expenseId);
+
+            if (expense == null) throw new Exception("Masraf bulunamadı.");
+
+            // Başkasının masrafını silemesin
+            if (expense.FarmField.UserId != userId)
+                throw new Exception("Bunu silmeye yetkiniz yok.");
+
+            // HARD DELETE (ESKİ): _context.Expenses.Remove(expense);
+
+            // SOFT DELETE (YENİ):
+            expense.IsDeleted = true; // Sadece bayrağı kaldır!
+
             await _context.SaveChangesAsync();
         }
     }

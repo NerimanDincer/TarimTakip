@@ -6,8 +6,6 @@ using TarimTakip.API.Services;
 
 namespace TarimTakip.API.Controllers
 {
-    // API YOLU (ROUTE) ÇOK ÖNEMLİ:
-    // Bu, "Tarlaların altındaki masraflar" anlamına gelir
     [Route("api/farmfield/{farmFieldId}/expense")]
     [ApiController]
     [Authorize(Roles = "Farmer")] // Sadece Çiftçiler
@@ -37,6 +35,31 @@ namespace TarimTakip.API.Controllers
             catch (Exception ex)
             {
                 // Servis'te attığımız "Yetkiniz yok" veya "Bulunamadı" hatalarını yakala
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
+        // GET: /api/farmfield/5/expense (Listele)
+        [HttpGet]
+        public async Task<IActionResult> GetExpenses(int farmFieldId)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var expenses = await _expenseService.GetExpensesByFieldAsync(farmFieldId, userId);
+            return Ok(expenses);
+        }
+
+        // DELETE: /api/farmfield/expense/15 (Sil) -> Dikkat Route değişti biraz
+        [HttpDelete("/api/expense/{expenseId}")]
+        public async Task<IActionResult> DeleteExpense(int expenseId)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            try
+            {
+                await _expenseService.DeleteExpenseAsync(expenseId, userId);
+                return Ok(new { Message = "Masraf silindi (Arşivlendi)." });
+            }
+            catch (Exception ex)
+            {
                 return BadRequest(new { Message = ex.Message });
             }
         }

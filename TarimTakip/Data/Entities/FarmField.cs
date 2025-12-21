@@ -1,6 +1,8 @@
-﻿namespace TarimTakip.API.Data.Entities
+﻿using TarimTakip.Data.Entities;
+
+namespace TarimTakip.API.Data.Entities
 {
-    public class FarmField
+    public class FarmField : BaseEntity
     {
         public int Id { get; set; }
         public int UserId { get; set; } // Foreign Key (Sahibi)

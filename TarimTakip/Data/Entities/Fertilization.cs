@@ -1,6 +1,8 @@
-﻿namespace TarimTakip.API.Data.Entities
+﻿using TarimTakip.Data.Entities;
+
+namespace TarimTakip.API.Data.Entities
 {
-    public class Fertilization
+    public class Fertilization : BaseEntity
     {
         public int Id { get; set; }
         public int FarmFieldId { get; set; } // Foreign Key
