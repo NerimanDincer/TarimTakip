@@ -21,6 +21,9 @@ namespace TarimTakip.API.Services
             var farmField = new FarmField
             {
                 UserId = userId,
+                Name = request.Name,    
+                City = request.City,     
+                County = request.County,
                 PlantName = request.PlantName,
                 SowingDate = request.SowingDate,
                 Area = request.Area,
@@ -42,6 +45,9 @@ namespace TarimTakip.API.Services
                 .Select(ff => new FarmFieldListDto // DTO'ya dönüştür
                 {
                     Id = ff.Id,
+                    Name = ff.Name,     
+                    City = ff.City,     
+                    County = ff.County,
                     PlantName = ff.PlantName,
                     Area = ff.Area,
                     RegionName = ff.Region.Name

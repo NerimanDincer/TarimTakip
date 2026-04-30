@@ -6,6 +6,9 @@ namespace TarimTakip.API.Data.Entities
     {
         public int Id { get; set; }
         public int UserId { get; set; } // Foreign Key (Sahibi)
+        public string Name { get; set; }
+        public string City { get; set; }
+        public string County { get; set; }
         public int RegionId { get; set; } // Foreign Key (Konumu)
         public string PlantName { get; set; }
         public DateTime SowingDate { get; set; }

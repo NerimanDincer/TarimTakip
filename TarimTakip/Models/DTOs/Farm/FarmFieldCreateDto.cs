@@ -4,6 +4,14 @@ namespace TarimTakip.API.Models.DTOs.Farm
 {
     public class FarmFieldCreateDto
     {
+        [Required(ErrorMessage = "Tarla adı boş geçilemez.")]
+        public string Name { get; set; }
+
+        [Required(ErrorMessage = "Şehir seçimi zorunludur.")]
+        public string City { get; set; }
+
+        [Required(ErrorMessage = "İlçe seçimi zorunludur.")]
+        public string County { get; set; }
         [Required]
         public string PlantName { get; set; }
 

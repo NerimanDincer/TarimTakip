@@ -96,7 +96,7 @@ namespace TarimTakip.API.Services
 
             var monthlyIncome = await _context.Sales
                 .Where(s => s.Date >= startOfMonth)
-                .SumAsync(s => s.Price);
+                .SumAsync(s => s.TotalPrice);
 
             // 4. Sonuçları DTO'ya doldur
             var stats = new AdminStatsDto

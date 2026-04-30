@@ -33,7 +33,7 @@ namespace TarimTakip.API.Services
             foreach (var field in farmFields)
             {
                 var totalExpenses = field.Expenses.Sum(e => e.Amount);
-                var totalIncome = field.Sales.Sum(s => s.Price);
+                var totalIncome = field.Sales.Sum(s => s.TotalPrice);
                 var netProfit = totalIncome - totalExpenses;
 
                 var fieldReport = new FarmFieldReportDto

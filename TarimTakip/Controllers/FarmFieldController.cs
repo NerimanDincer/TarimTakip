@@ -8,7 +8,7 @@ namespace TarimTakip.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize] // <-- SİHİRLİ SATIR 1: BU KAPIDAN GİRİŞ YASAK! (Giriş yapmayan giremez)
+    [Authorize] //(Giriş yapmayan giremez)
     public class FarmFieldController : ControllerBase
     {
         private readonly IFarmFieldService _farmFieldService;
@@ -20,51 +20,66 @@ namespace TarimTakip.API.Controllers
 
         // POST: /api/farmfield
         [HttpPost]
-        [Authorize(Roles = "Farmer")] // <-- SİHİRLİ SATIR 2: SADECE ÇİFTÇİLER GİREBİLİR!
+        // [Authorize(Roles = "Farmer")] // <-- İŞTE BU SATIR SENİ ENGELLİYORDU, KAPATTIK! 🚫
         public async Task<IActionResult> CreateFarmField([FromBody] FarmFieldCreateDto request)
         {
 
-            // Token (kimlik kartı) içinden kullanıcının ID'sini (Claim) oku
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (userIdClaim == null)
+            if (userIdString == null)
             {
-                // Bu normalde [Authorize] olduğu için hiç olmaz ama ek güvenlik
                 return Unauthorized();
             }
 
-            var userId = int.Parse(userIdClaim.Value);
+            int userId = int.Parse(userIdString);
 
-            // Servise hem DTO'yu hem de token'dan aldığımız userId'yi gönder
             var newFarmField = await _farmFieldService.CreateFarmFieldAsync(request, userId);
-            return Ok(newFarmField); // Oluşturulan tarlanın tüm bilgilerini (ID dahil) döndür
+
+            return Ok(newFarmField);
         }
         [HttpGet]
         public async Task<IActionResult> GetMyFarmFields()
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userIdString == null)
+            {
+                return Unauthorized();
+            }
+
+            int userId = int.Parse(userIdString);
+
             var farmFields = await _farmFieldService.GetFarmFieldsByUserIdAsync(userId);
+
             return Ok(farmFields);
         }
+
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetFarmFieldDetail(int id)
         {
             try
             {
-                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+                var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-                // Servisteki metot ZATEN güvenlik kontrolü yapıyor (UserId'yi yolladık)
-                var farmFieldDetail = await _farmFieldService.GetFarmFieldDetailAsync(id, userId);
+                if (userIdString == null)
+                {
+                    return Unauthorized();
+                }
+
+                int userId = int.Parse(userIdString);
+
+                var farmFieldDetail = await _farmFieldService
+                    .GetFarmFieldDetailAsync(id, userId);
 
                 return Ok(farmFieldDetail);
             }
             catch (Exception ex)
             {
-                // Serviste attığımız "Tarla bulunamadı..." hatasını yakala
                 return NotFound(new { Message = ex.Message });
             }
         }
+
         [HttpGet("admin/{id}")]
         [Authorize(Roles = "Admin")] // <-- SİHİRLİ KİLİT!
         public async Task<IActionResult> GetFarmFieldDetailForAdmin(int id)

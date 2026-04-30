@@ -100,7 +100,7 @@ namespace TarimTakip.API.Services
             // Token'ın içine hangi bilgileri koyacağımızı seçiyoruz (Claims)
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()), // Kullanıcının ID'si
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), // Kullanıcının ID'si
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(JwtRegisteredClaimNames.Name, user.FullName),
                 new Claim(ClaimTypes.Role, user.Role) // Kullanıcının Rolü

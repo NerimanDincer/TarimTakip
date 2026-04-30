@@ -33,5 +33,21 @@ namespace TarimTakip.API.Controllers
                 return BadRequest(new { Message = ex.Message });
             }
         }
+
+        // GET: /api/farmfield/2/irrigation
+        [HttpGet]
+        public async Task<IActionResult> GetIrrigations(int farmFieldId)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+                var irrigations = await _irrigationService.GetIrrigationsByFieldAsync(farmFieldId, userId);
+                return Ok(irrigations);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
     }
 }

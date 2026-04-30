@@ -63,6 +63,15 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddControllers()
     .AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles);
+// 1. CORS Ýznini Tanýmla (Herkese izin ver)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        builder => builder
+            .AllowAnyOrigin()  // Kim gelirse gelsin
+            .AllowAnyMethod()  // GET, POST, PUT, DELETE hepsi serbest
+            .AllowAnyHeader()); // Tüm baþlýklara izin ver
+});
 builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<IImageService, ImageService>();
@@ -98,6 +107,8 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 var app = builder.Build();
+// Cors iznini devreye sokuyorum
+app.UseCors("AllowAll");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

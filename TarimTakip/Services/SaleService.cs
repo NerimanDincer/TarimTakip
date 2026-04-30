@@ -33,7 +33,8 @@ namespace TarimTakip.API.Services
             {
                 FarmFieldId = farmFieldId,
                 AmountKg = request.AmountKg,
-                Price = request.Price,
+                UnitPrice = request.UnitPrice,
+                TotalPrice = request.AmountKg * request.UnitPrice,
                 Date = request.Date
             };
 
