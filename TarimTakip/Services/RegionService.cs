@@ -43,5 +43,16 @@ namespace TarimTakip.API.Services
 
             return newRegion; // Oluşturulan yeni bölgeyi döndür
         }
+        public async Task UpdateRegionAsync(int id, string newName)
+        {
+            var region = await _context.Regions.FindAsync(id);
+            if (region == null)
+            {
+                throw new Exception("Bölge bulunamadı.");
+            }
+
+            region.Name = newName; // İsmi güncelledik
+            await _context.SaveChangesAsync(); // Veritabanına kaydettik
+        }
     }
 }

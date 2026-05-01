@@ -6,5 +6,6 @@ namespace TarimTakip.API.Services
     {
         Task<List<Region>> GetAllRegionsAsync();
         Task<Region> CreateRegionAsync(string regionName);
+        Task UpdateRegionAsync(int id, string newName);
     }
 }

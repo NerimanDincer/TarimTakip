@@ -47,5 +47,21 @@ namespace TarimTakip.API.Controllers
                 return BadRequest(new { Message = ex.Message });
             }
         }
+        // PUT: /api/region/1?newName=Akdeniz Bölgesi
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateRegion(int id, [FromQuery] string newName)
+        {
+            if (string.IsNullOrEmpty(newName)) return BadRequest("Yeni isim boş olamaz.");
+
+            try
+            {
+                await _regionService.UpdateRegionAsync(id, newName);
+                return Ok(new { Message = "Bölge başarıyla güncellendi." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
     }
 }
