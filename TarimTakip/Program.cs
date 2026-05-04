@@ -107,7 +107,11 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 var app = builder.Build();
-// Cors iznini devreye sokuyorum
+
+// 1. ÖNCE YÖNLENDÝRME (ROUTING) MEKANÝZMASINI KUR
+app.UseRouting();
+
+// 2. HEMEN ARDINDAN CORS ÝZNÝNÝ DEVREYE SOK
 app.UseCors("AllowAll");
 
 // Configure the HTTP request pipeline.
@@ -117,11 +121,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// 3. ÝÞTE SÝNSÝ KATÝL! Geliþtirme aþamasýnda lokal IP kullanýrken 
+// HTTPS'e zorlamak Chrome'u çýldýrtýr. Canlýya alana kadar YORUM SATIRI yapýyoruz!
+// app.UseHttpsRedirection(); 
+
 app.UseStaticFiles(); // Bu satýr olmadan resimler tarayýcýda açýlmaz!
-app.UseAuthentication(); 
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHub<TarimTakip.API.Hubs.ChatHub>("/chathub"); 
+app.MapHub<TarimTakip.API.Hubs.ChatHub>("/chathub");
 app.Run();

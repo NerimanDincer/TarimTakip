@@ -35,6 +35,7 @@ namespace TarimTakip.API.Controllers
                 user.Id,
                 user.FullName,
                 user.Email,
+                user.Phone,
                 user.Bio,
                 user.ProfilePictureUrl,
                 Region = user.Region?.Name

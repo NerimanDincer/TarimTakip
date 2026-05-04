@@ -136,10 +136,24 @@ namespace TarimTakip.API.Services
             var user = await _context.Users.FindAsync(userId);
             if (user == null) throw new Exception("Kullanıcı bulunamadı.");
 
+            // Adı her zaman güncelliyoruz
             user.FullName = request.FullName;
-            user.Bio = request.Bio;
-            user.ProfilePictureUrl = request.ProfilePictureUrl;
-            user.RegionId = request.RegionId;
+
+            // Telefon dolu geldiyse güncelle
+            if (!string.IsNullOrEmpty(request.Phone))
+                user.Phone = request.Phone;
+
+            // Biyografi dolu geldiyse güncelle
+            if (!string.IsNullOrEmpty(request.Bio))
+                user.Bio = request.Bio;
+
+            // Fotoğraf dolu geldiyse güncelle
+            if (!string.IsNullOrEmpty(request.ProfilePictureUrl))
+                user.ProfilePictureUrl = request.ProfilePictureUrl;
+
+            // Bölge ID'si 0'dan büyük bir değer geldiyse güncelle
+            if (request.RegionId.HasValue && request.RegionId.Value > 0)
+                user.RegionId = request.RegionId.Value;
 
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
