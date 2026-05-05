@@ -95,5 +95,24 @@ namespace TarimTakip.API.Controllers
                 return NotFound(new { Message = ex.Message });
             }
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteFarmField(int id)
+        {
+            try
+            {
+                var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (userIdString == null) return Unauthorized();
+
+                int userId = int.Parse(userIdString);
+                await _farmFieldService.DeleteFarmFieldAsync(id, userId);
+
+                return Ok(new { Message = "Tarla başarıyla silindi (Arşivlendi)." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
     }
 }

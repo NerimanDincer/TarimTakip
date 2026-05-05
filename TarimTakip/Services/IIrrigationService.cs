@@ -9,5 +9,6 @@ namespace TarimTakip.API.Services
     {
         Task CreateIrrigationAsync(int farmFieldId, IrrigationCreateDto request, int userId);
         Task<IEnumerable<object>> GetIrrigationsByFieldAsync(int farmFieldId, int userId);
+        Task DeleteIrrigationAsync(int irrigationId, int userId);
     }
 }

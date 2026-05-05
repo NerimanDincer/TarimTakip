@@ -157,5 +157,20 @@ namespace TarimTakip.API.Services
 
             return farmField;
         }
+
+        public async Task DeleteFarmFieldAsync(int farmFieldId, int userId)
+        {
+            // Tarlayı ve çiftçinin o tarlaya sahip olup olmadığını kontrol et
+            var field = await _context.FarmFields
+                .FirstOrDefaultAsync(f => f.Id == farmFieldId && f.UserId == userId);
+
+            if (field == null) throw new Exception("Tarla bulunamadı veya yetkiniz yok.");
+
+            // SİHİRLİ DOKUNUŞ: Gerçekten silmiyoruz, sadece arşivliyoruz!
+            field.IsDeleted = true;
+
+            _context.FarmFields.Update(field);
+            await _context.SaveChangesAsync();
+        }
     }
 }

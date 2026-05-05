@@ -70,5 +70,16 @@ namespace TarimTakip.API.Services
 
             return irrigations;
         }
+        public async Task DeleteIrrigationAsync(int irrigationId, int userId)
+        {
+            var ir = await _context.Irrigations.Include(i => i.FarmField)
+                .FirstOrDefaultAsync(i => i.Id == irrigationId && i.FarmField.UserId == userId);
+
+            if (ir == null) throw new Exception("Kayıt bulunamadı.");
+
+            ir.IsDeleted = true; // SİHİRLİ DOKUNUŞ (Soft Delete)
+            _context.Irrigations.Update(ir);
+            await _context.SaveChangesAsync();
+        }
     }
 }

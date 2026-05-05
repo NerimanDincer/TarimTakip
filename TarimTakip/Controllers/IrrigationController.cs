@@ -49,5 +49,17 @@ namespace TarimTakip.API.Controllers
                 return BadRequest(new { Message = ex.Message });
             }
         }
+
+        [HttpDelete("irrigation/{id}")]
+        public async Task<IActionResult> DeleteIrrigation(int id)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
+                await _irrigationService.DeleteIrrigationAsync(id, userId);
+                return Ok(new { Message = "Sulama kaydı başarıyla silindi." });
+            }
+            catch (Exception ex) { return BadRequest(new { Message = ex.Message }); }
+        }
     }
 }
