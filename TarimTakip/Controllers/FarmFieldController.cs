@@ -107,7 +107,25 @@ namespace TarimTakip.API.Controllers
                 int userId = int.Parse(userIdString);
                 await _farmFieldService.DeleteFarmFieldAsync(id, userId);
 
-                return Ok(new { Message = "Tarla başarıyla silindi (Arşivlendi)." });
+                return Ok(new { Message = "Tarla başarıyla silindi." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateFarmField(int id, [FromBody] FarmFieldCreateDto request)
+        {
+            try
+            {
+                var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (userIdString == null) return Unauthorized();
+
+                int userId = int.Parse(userIdString);
+                var updatedField = await _farmFieldService.UpdateFarmFieldAsync(id, userId, request);
+
+                return Ok(new { Message = "Tarla başarıyla güncellendi.", Data = updatedField });
             }
             catch (Exception ex)
             {

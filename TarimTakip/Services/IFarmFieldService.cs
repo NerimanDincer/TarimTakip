@@ -10,5 +10,6 @@ namespace TarimTakip.API.Services
         Task<FarmFieldDetailDto> GetFarmFieldDetailAsync(int farmFieldId, int userId);
         Task<FarmFieldDetailDto> GetFarmFieldDetailForAdminAsync(int farmFieldId);
         Task DeleteFarmFieldAsync(int farmFieldId, int userId);
+        Task<FarmField> UpdateFarmFieldAsync(int farmFieldId, int userId, FarmFieldCreateDto request);
     }
 }

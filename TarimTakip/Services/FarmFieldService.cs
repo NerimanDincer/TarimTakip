@@ -40,13 +40,14 @@ namespace TarimTakip.API.Services
         public async Task<List<FarmFieldListDto>> GetFarmFieldsByUserIdAsync(int userId)
         {
             return await _context.FarmFields
-                .Where(ff => ff.UserId == userId) // Sadece bu kullanıcıya ait olanlar
+                // SİHİRLİ FİLTRE: Kullanıcı ID'si eşleşsin VE Tarla silinmemiş (arşivlenmemiş) olsun!
+                .Where(ff => ff.UserId == userId && ff.IsDeleted == false)
                 .Include(ff => ff.Region) // Region tablosuna JOIN at (Bölge adını almak için)
                 .Select(ff => new FarmFieldListDto // DTO'ya dönüştür
                 {
                     Id = ff.Id,
-                    Name = ff.Name,     
-                    City = ff.City,     
+                    Name = ff.Name,
+                    City = ff.City,
                     County = ff.County,
                     PlantName = ff.PlantName,
                     Area = ff.Area,
@@ -58,15 +59,14 @@ namespace TarimTakip.API.Services
         // 3. METOT (YENİ - Tarla Detayını Getirme)
         public async Task<FarmFieldDetailDto> GetFarmFieldDetailAsync(int farmFieldId, int userId)
         {
-            // Tarlayı, tüm alt kayıtlarıyla (Masraf, Sulama vb.) birlikte çek
-            // GÜVENLİK KONTROLÜ: Sorgu (Where) kısmı hem tarla ID'sini hem de kullanıcı ID'sini kontrol eder
             var farmField = await _context.FarmFields
-                .Where(ff => ff.Id == farmFieldId && ff.UserId == userId) // <-- GÜVENLİK BURADA!
-                .Include(ff => ff.Region) // Bölge adı için
-                .Include(ff => ff.Expenses) // Masraflar listesi için
-                .Include(ff => ff.Irrigations) // Sulamalar listesi için
-                .Include(ff => ff.Fertilizations) // Gübrelemeler listesi için
-                .Select(ff => new FarmFieldDetailDto // DTO'ya dönüştür
+                // GÜVENLİK FİLTRESİ: ID eşleşsin, Kullanıcı eşleşsin VE Silinmemiş olsun!
+                .Where(ff => ff.Id == farmFieldId && ff.UserId == userId && ff.IsDeleted == false)
+                .Include(ff => ff.Region)
+                .Include(ff => ff.Expenses)
+                .Include(ff => ff.Irrigations)
+                .Include(ff => ff.Fertilizations)
+                .Select(ff => new FarmFieldDetailDto
                 {
                     Id = ff.Id,
                     PlantName = ff.PlantName,
@@ -97,9 +97,8 @@ namespace TarimTakip.API.Services
                         Date = f.Date
                     }).ToList()
                 })
-                .FirstOrDefaultAsync(); // Tek bir kayıt veya null
+                .FirstOrDefaultAsync();
 
-            // Tarla ya bulunamadı, ya da başka birine ait
             if (farmField == null)
             {
                 throw new Exception("Tarla bulunamadı veya bu tarlayı görme yetkiniz yok.");
@@ -171,6 +170,30 @@ namespace TarimTakip.API.Services
 
             _context.FarmFields.Update(field);
             await _context.SaveChangesAsync();
+        }
+
+        // 4. METOT (YENİ - Tarla Düzenleme)
+        public async Task<FarmField> UpdateFarmFieldAsync(int farmFieldId, int userId, FarmFieldCreateDto request)
+        {
+            // Tarlayı bul (Silinmemiş olan ve bu kullanıcıya ait olan)
+            var field = await _context.FarmFields
+                .FirstOrDefaultAsync(f => f.Id == farmFieldId && f.UserId == userId && f.IsDeleted == false);
+
+            if (field == null) throw new Exception("Tarla bulunamadı veya güncelleme yetkiniz yok.");
+
+            // Kullanıcıdan gelen yeni verileri eski tarlanın üzerine yaz
+            field.Name = request.Name;
+            field.City = request.City;
+            field.County = request.County;
+            field.PlantName = request.PlantName;
+            field.Area = request.Area;
+            field.SoilInfo = request.SoilInfo;
+            field.RegionId = request.RegionId;
+
+            _context.FarmFields.Update(field);
+            await _context.SaveChangesAsync();
+
+            return field;
         }
     }
 }
